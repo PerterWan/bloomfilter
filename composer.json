@@ -1,0 +1,22 @@
+{
+    "name": "bloomfilter/bloomfilter",
+    "description": "PHP BLOOM FILTER",
+    "type": "library",
+    "license": "MIT",
+    "version": "v1.0.0",
+    "authors": [
+        {
+            "name": "欧阳风神",
+            "email": "wysszetz@163.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bloomfilter\\": "src/"
+        }
+    }
+}

@@ -1,2 +1,2 @@
-# blooomfilter
+# bloomfilter
 PHP BLOOM FILTER
