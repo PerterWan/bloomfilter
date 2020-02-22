@@ -1,1 +1,4 @@
 /vendor/
+/.idea
+/demo.php
+/composer.lock

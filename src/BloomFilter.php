@@ -5,7 +5,7 @@ namespace Bloomfilter;
 
 
 use Bloomfilter\config\BFException;
-use Bloomfilter\config\Scenes;
+use Bloomfilter\config\Constants;
 use Bloomfilter\Hash\HashInit;
 use Bloomfilter\Redis\RedisBloomFilter;
 
@@ -18,7 +18,13 @@ class BloomFilter
     private $salts;
     private $bloomValues;
 
-    public function __construct($hashFunction = "MD5", $data, array $salts)
+    /**
+     * BloomFilter constructor.
+     * @param string $hashFunction
+     * @param $data
+     * @param array $salts
+     */
+    public function __construct($hashFunction = Constants::HASH_FUNCTION_MD5, $data, array $salts)
     {
         $this->hashFunction = $hashFunction;
         $this->data = $data;
@@ -42,32 +48,33 @@ class BloomFilter
         $this->bloomValues = $hashInit->getBloomValues();
     }
 
-    public function getPlat($scenes, $client)
+    /**
+     * @param string $redisKey
+     * @param string $host
+     * @param int $port
+     * @param string $password
+     * @param int $timeout
+     * @param int $db
+     * @return RedisBloomFilter
+     */
+    public function redis($redisKey = Constants::SCENES_REDIS_KEY, $host = Constants::SCENES_REDIS_HOST, $port = Constants::SCENES_REDIS_PORT, $password = Constants::SCENES_REDIS_PASSWORD, $timeout = Constants::SCENES_REDIS_TIMEOUT, $db = Constants::SCENES_REDIS_DB)
     {
-        if (!in_array($scenes, [Scenes::SCENES_REDIS, Scenes::SCENES_FILE])) {
-            throw new BFException();
-        }
-        switch ($scenes) {
-            case Scenes::SCENES_REDIS:
-                $obj = $this->redisBloomFilter($client);
-                break;
-            case Scenes::SCENES_FILE:
-                $obj = $this->fileBloomFilter();
-                break;
-            default:
-                $obj = "";
-                break;
-        }
-        return $obj;
+        empty($redisKey) ? $redisKey = Constants::SCENES_REDIS_KEY : true;
+        $redisConfig = ['host' => $host, 'port' => $port, 'password' => $password, 'timeout' => $timeout, 'db' => $db, 'redisKey' => $redisKey];
+        return new RedisBloomFilter($this, $redisConfig);
     }
 
-    private function redisBloomFilter($client)
+    /**
+     * @param $fileName
+     * @param $filePath
+     */
+    public function file($fileName, $filePath)
     {
-        return new RedisBloomFilter($this, $client);
-    }
+        if (!is_dir($filePath))
+            mkdir($filePath, 0777, true);
 
-    private function fileBloomFilter()
-    {
-        return "";
+        $fullPath = $filePath . DIRECTORY_SEPARATOR . $fileName;
+        if (!file_exists($fullPath))
+            touch($fullPath);
     }
 }
